@@ -1,7 +1,85 @@
 package com.school.sba.serviceimpl;
 
 import org.hibernate.service.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-public class UserServiceImpl implements Service {
+import com.school.sba.entity.User;
+import com.school.sba.enums.UserRole;
+import com.school.sba.exception.ExistingAdminException;
+import com.school.sba.repository.UserRepo;
+import com.school.sba.requestdto.UserRequest;
+import com.school.sba.responsedto.UserResponse;
+import com.school.sba.service.UserService;
+import com.school.sba.utility.ResponseStructure;
+
+import jakarta.security.auth.message.callback.PrivateKeyCallback.Request;
+import jakarta.validation.Valid;
+
+@org.springframework.stereotype.Service
+public class UserServiceImpl implements UserService {
+
+	@Autowired
+	private UserRepo repo;
+
+	@Autowired
+	ResponseStructure<UserResponse> structrure;
+
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> saveUser(UserRequest userRequest) {
+
+		if(userRequest.getUserRole().equals(UserRole.ADMIN)) {
+			if(repo.existsByUserRole(userRequest.getUserRole())==false) {
+
+				User user = repo.save(mapUserRequestToUser(userRequest));
+				structrure.setStatus(HttpStatus.CREATED.value());
+				structrure.setMessage(" user saved succesfully");
+				structrure.setData(mapUserToUserResponse(user));
+				return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.CREATED); 
+
+			}
+			else {
+				throw new ExistingAdminException("admin is already existing");
+
+			}
+		}
+		else {
+			User user = repo.save(mapUserRequestToUser(userRequest));
+			structrure.setStatus(HttpStatus.CREATED.value());
+			structrure.setMessage(" user saved succesfully");
+			structrure.setData(mapUserToUserResponse(user));
+			return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.CREATED); 
+		}
+
+
+	}
+	private User mapUserRequestToUser(UserRequest userRequest) {
+		return	User.builder()
+				.userName(userRequest.getUserName())
+				.password(userRequest.getPassword())
+				.firstName(userRequest.getFirstName())
+				.lastName(userRequest.getLastName())
+				.email(userRequest.getEmail())
+				.contactNo(userRequest.getContactNo())
+				.userRole(userRequest.getUserRole())
+				.build();
+	}
+	private UserResponse mapUserToUserResponse(User user) {
+		return UserResponse.builder()
+				.userId(user.getUserId())
+				.userName(user.getUserName())
+				.email(user.getEmail())
+				.firstName(user.getFirstName())
+				.lastName(user.getLastName())
+				.contactNo(user.getContactNo())
+				.userRole(user.getUserRole())
+				.build();
+	}
+//	@Override
+//	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId) {
+//		
+//		User user = repo.findById(userId).orElseThrow(()->throw new UserNotFoundByIdException(""));
+//	}
 
 }
