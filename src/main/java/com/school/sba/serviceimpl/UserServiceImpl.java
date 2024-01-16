@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
 import com.school.sba.exception.ExistingAdminException;
+import com.school.sba.exception.UserNotFoundByIdException;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.requestdto.UserRequest;
 import com.school.sba.responsedto.UserResponse;
@@ -74,12 +75,33 @@ public class UserServiceImpl implements UserService {
 				.lastName(user.getLastName())
 				.contactNo(user.getContactNo())
 				.userRole(user.getUserRole())
+				
 				.build();
 	}
-//	@Override
-//	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId) {
-//		
-//		User user = repo.findById(userId).orElseThrow(()->throw new UserNotFoundByIdException(""));
-//	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId) {
+
+		User user = repo.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("user not found"));
+		user.setDeleted(true);
+		repo.save(user);
+		
+		structrure.setStatus(HttpStatus.OK.value());
+		structrure.setMessage("user is soft deleted");
+		structrure.setData(mapUserToUserResponse(user));
+
+
+		return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.OK);
+
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> findUser(int userId) {
+		User user = repo.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("user not found"));
+
+		structrure.setStatus(HttpStatus.FOUND.value());
+		structrure.setMessage("user found successfully");
+		structrure.setData(mapUserToUserResponse(user));
+
+		return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.FOUND);
+	}
 
 }

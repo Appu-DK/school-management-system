@@ -16,6 +16,8 @@ public interface UserService  {
 
 	ResponseEntity<ResponseStructure<UserResponse>> saveUser(@Valid UserRequest userRequest);
 
-	//	ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId);
+	ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId);
+
+	ResponseEntity<ResponseStructure<UserResponse>> findUser(int userId);
 
 }

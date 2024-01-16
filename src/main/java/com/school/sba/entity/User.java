@@ -35,6 +35,8 @@ public class User {
 	private String email;
 
 	private UserRole userRole;
+	
+	private boolean isDeleted;
 
 
 

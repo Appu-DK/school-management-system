@@ -21,6 +21,7 @@ public class UserResponse {
 	private String lastName;
 	private long contactNo;
 	private String email;
+	private boolean isDeleted;
 	private UserRole userRole;
 	
 

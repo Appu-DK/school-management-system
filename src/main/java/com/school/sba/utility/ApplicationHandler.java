@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.school.sba.exception.ExistingAdminException;
+import com.school.sba.exception.UserNotFoundByIdException;
 
 @RestControllerAdvice
 public class ApplicationHandler {
@@ -24,6 +25,11 @@ public class ApplicationHandler {
 	@ExceptionHandler
 	public ResponseEntity<Object> adminAlreadyExist(ExistingAdminException ex){
 		return structure(HttpStatus.BAD_REQUEST,ex.getMessage(),"admin is already existing in the database it doesn't have another admin" );
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<Object> userNotFoundById(UserNotFoundByIdException ex){
+		return structure(HttpStatus.NOT_FOUND, ex.getMessage(), "user is not found in database");
 	}
 
 }
