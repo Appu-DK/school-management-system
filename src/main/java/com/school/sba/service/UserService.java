@@ -20,4 +20,6 @@ public interface UserService  {
 
 	ResponseEntity<ResponseStructure<UserResponse>> findUser(int userId);
 
+
+
 }

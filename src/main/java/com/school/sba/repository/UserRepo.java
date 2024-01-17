@@ -10,5 +10,9 @@ import com.school.sba.enums.UserRole;
 public interface UserRepo extends JpaRepository<User,Integer> {
 
 	public boolean existsByUserRole(UserRole userRole) ;
+	
+	public boolean existsByUserRole(int userId) ;
+	
+	
 
 }

@@ -26,6 +26,30 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	ResponseStructure<UserResponse> structrure;
+	
+	private User mapUserRequestToUser(UserRequest userRequest) {
+		return	User.builder()
+				.userName(userRequest.getUserName())
+				.password(userRequest.getPassword())
+				.firstName(userRequest.getFirstName())
+				.lastName(userRequest.getLastName())
+				.email(userRequest.getEmail())
+				.contactNo(userRequest.getContactNo())
+				.userRole(userRequest.getUserRole())
+				.build();
+	}
+	private UserResponse mapUserToUserResponse(User user) {
+		return UserResponse.builder()
+				.userId(user.getUserId())
+				.userName(user.getUserName())
+				.email(user.getEmail())
+				.firstName(user.getFirstName())
+				.lastName(user.getLastName())
+				.contactNo(user.getContactNo())
+				.userRole(user.getUserRole())
+			
+				.build();
+	}
 
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponse>> saveUser(UserRequest userRequest) {
@@ -55,29 +79,7 @@ public class UserServiceImpl implements UserService {
 
 
 	}
-	private User mapUserRequestToUser(UserRequest userRequest) {
-		return	User.builder()
-				.userName(userRequest.getUserName())
-				.password(userRequest.getPassword())
-				.firstName(userRequest.getFirstName())
-				.lastName(userRequest.getLastName())
-				.email(userRequest.getEmail())
-				.contactNo(userRequest.getContactNo())
-				.userRole(userRequest.getUserRole())
-				.build();
-	}
-	private UserResponse mapUserToUserResponse(User user) {
-		return UserResponse.builder()
-				.userId(user.getUserId())
-				.userName(user.getUserName())
-				.email(user.getEmail())
-				.firstName(user.getFirstName())
-				.lastName(user.getLastName())
-				.contactNo(user.getContactNo())
-				.userRole(user.getUserRole())
-				
-				.build();
-	}
+	
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId) {
 
@@ -103,5 +105,6 @@ public class UserServiceImpl implements UserService {
 
 		return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.FOUND);
 	}
+
 
 }

@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExistingAdminException extends RuntimeException {
+public class AdminNotFoundException extends RuntimeException {
 
 	private String message;
-	
-	
-
 }
