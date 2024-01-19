@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.school.sba.entity.User;
 import com.school.sba.requestdto.UserRequest;
+import com.school.sba.responsedto.AcademicProgramRequest;
 import com.school.sba.responsedto.UserResponse;
 import com.school.sba.service.UserService;
 import com.school.sba.utility.ResponseStructure;
@@ -30,18 +32,24 @@ public class UserController {
 		return userService.saveUser(userRequest);
 
 	}
-	
+
 	@GetMapping("users/{userId}")
 	public ResponseEntity<ResponseStructure<UserResponse>> findUser(@PathVariable int userId){
 		return userService.findUser(userId);
 	}
 	@DeleteMapping("users/{userId}")
 	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(@PathVariable int userId){
-		
+
 		return userService.deleteUser(userId);
-		
+
 	}
-	
-	
+
+	@PutMapping("/academic-programs/{programId}/users/{userId}")
+	public ResponseEntity<ResponseStructure<UserResponse>> addUserToAcademic(@PathVariable int programId,@PathVariable int userId)
+	{
+		return userService.addUserToAcademic(programId,userId);
+	}
+
+
 
 }

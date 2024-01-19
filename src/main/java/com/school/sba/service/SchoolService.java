@@ -15,4 +15,10 @@ public interface SchoolService {
 
 	ResponseEntity<ResponseStructure<SchoolResponse>> saveSchool(int userId, @Valid SchoolRequest schoolRequest);
 
+	ResponseEntity<ResponseStructure<SchoolResponse>> deleteSchool(int schoolId);
+
+	ResponseEntity<ResponseStructure<SchoolResponse>> updateSchool(int schoolId, SchoolRequest schoolRequest);
+
+	ResponseEntity<ResponseStructure<SchoolResponse>> findSchool(int schoolId);
+
 }

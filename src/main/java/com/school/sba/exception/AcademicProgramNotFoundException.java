@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminNotFoundException extends RuntimeException {
+
+public class AcademicProgramNotFoundException extends RuntimeException{
 
 	private String message;
+	
 }

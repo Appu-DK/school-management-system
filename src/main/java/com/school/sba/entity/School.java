@@ -1,5 +1,7 @@
 package com.school.sba.entity;
 
+import java.util.List;
+
 import org.springframework.aot.generate.GeneratedTypeReference;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +27,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class School {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int schoolId;
@@ -32,10 +35,13 @@ public class School {
 	private long contactNo;
 	private String emailId;
 	private String address;
-	
+
 	@OneToOne
 	private Schedule schedule;
-	
-	
+
+	@OneToMany(mappedBy = "school")
+	private List<AcademicProgram> listOfAcademicPrograms;
+
+
 
 }

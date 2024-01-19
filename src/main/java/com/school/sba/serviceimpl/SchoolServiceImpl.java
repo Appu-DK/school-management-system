@@ -1,5 +1,7 @@
 package com.school.sba.serviceimpl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
 import com.school.sba.exception.AdminNotFoundException;
 import com.school.sba.exception.SchoolAlreadyExistingException;
+import com.school.sba.exception.SchoolNotFoundByIdException;
 import com.school.sba.exception.UserNotFoundByIdException;
 import com.school.sba.repository.SchoolRepo;
 import com.school.sba.repository.UserRepo;
@@ -100,6 +103,44 @@ public class SchoolServiceImpl implements SchoolService{
 		//
 		//		}
 
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<SchoolResponse>> deleteSchool(int schoolId) {
+		
+		School school = schoolRepo.findById(schoolId)
+		.orElseThrow(()->new SchoolNotFoundByIdException("school cannot be deleted because school is not exist"));
+		schoolRepo.deleteById(schoolId);
+		structure.setMessage("school deleted");
+		structure.setStatus(HttpStatus.OK.value());
+		structure.setData(mapSchoolToSchoolResponse(school));
+		
+		return new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.OK);
+		
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<SchoolResponse>> updateSchool(int schoolId, SchoolRequest schoolRequest) {
+		School existSchool = schoolRepo.findById(schoolId).map(u->{
+			School school = mapSchoolRequestToSchool(schoolRequest);
+			school.setSchoolId(schoolId);
+			return schoolRepo.save(school);
+		})
+		.orElseThrow(()->new SchoolNotFoundByIdException("school is not updated becz school is not exist"));
+		structure.setMessage("school updated successfully");
+		structure.setStatus(HttpStatus.OK.value());
+		structure.setData(mapSchoolToSchoolResponse(existSchool));
+		
+		return new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<SchoolResponse>> findSchool(int schoolId) {
+		School school = schoolRepo.findById(schoolId)
+				.orElseThrow(()-> new SchoolNotFoundByIdException("school is not found"));
+	
+		structure.setMessage("school data found in database");
+		structure.setStatus(HttpStatus.FOUND.value());
+		structure.setData(mapSchoolToSchoolResponse(school));
+		
+		return new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.FOUND);
 	}
 
 

@@ -5,12 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.school.sba.entity.AcademicProgram;
 import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
+import com.school.sba.exception.AcademicProgramNotFoundException;
 import com.school.sba.exception.ExistingAdminException;
 import com.school.sba.exception.UserNotFoundByIdException;
+import com.school.sba.repository.AcademicProgramRepo;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.requestdto.UserRequest;
+import com.school.sba.responsedto.AcademicProgramRequest;
 import com.school.sba.responsedto.UserResponse;
 import com.school.sba.service.UserService;
 import com.school.sba.utility.ResponseStructure;
@@ -26,7 +30,10 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	ResponseStructure<UserResponse> structrure;
-	
+
+	@Autowired
+	private AcademicProgramRepo academicProgramRepo;
+
 	private User mapUserRequestToUser(UserRequest userRequest) {
 		return	User.builder()
 				.userName(userRequest.getUserName())
@@ -47,7 +54,7 @@ public class UserServiceImpl implements UserService {
 				.lastName(user.getLastName())
 				.contactNo(user.getContactNo())
 				.userRole(user.getUserRole())
-			
+
 				.build();
 	}
 
@@ -79,14 +86,14 @@ public class UserServiceImpl implements UserService {
 
 
 	}
-	
+
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId) {
 
 		User user = repo.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("user not found"));
 		user.setDeleted(true);
 		repo.save(user);
-		
+
 		structrure.setStatus(HttpStatus.OK.value());
 		structrure.setMessage("user is soft deleted");
 		structrure.setData(mapUserToUserResponse(user));
@@ -104,6 +111,24 @@ public class UserServiceImpl implements UserService {
 		structrure.setData(mapUserToUserResponse(user));
 
 		return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.FOUND);
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> addUserToAcademic(int programId,
+			int userId) 
+	{
+		User user = repo.findById(userId).orElseThrow(()->new UserNotFoundByIdException("userNot found  by"));
+		AcademicProgram acadmicProgram = academicProgramRepo.findById(programId).orElseThrow(()-> new AcademicProgramNotFoundException("acdemic program not found "));
+
+		acadmicProgram.getListOfUsers().add(user);
+		academicProgramRepo.save(acadmicProgram);
+		repo.save(user);
+		structrure.setStatus(HttpStatus.OK.value());
+		structrure.setMessage("user added to academic");
+		structrure.setData(mapUserToUserResponse(user));
+
+		return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.OK);
+
+
 	}
 
 
