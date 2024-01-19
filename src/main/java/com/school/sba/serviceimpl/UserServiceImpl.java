@@ -6,12 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.school.sba.entity.AcademicProgram;
+import com.school.sba.entity.Subject;
 import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
 import com.school.sba.exception.AcademicProgramNotFoundException;
 import com.school.sba.exception.ExistingAdminException;
+import com.school.sba.exception.SubjectNotFoundException;
+import com.school.sba.exception.TeacherNotFoundException;
 import com.school.sba.exception.UserNotFoundByIdException;
 import com.school.sba.repository.AcademicProgramRepo;
+import com.school.sba.repository.SubjectRepo;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.requestdto.UserRequest;
 import com.school.sba.responsedto.AcademicProgramRequest;
@@ -27,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserRepo repo;
+
+	@Autowired
+	private SubjectRepo subjectRepo;
 
 	@Autowired
 	ResponseStructure<UserResponse> structrure;
@@ -121,7 +128,7 @@ public class UserServiceImpl implements UserService {
 
 		acadmicProgram.getListOfUsers().add(user);
 		academicProgramRepo.save(acadmicProgram);
-		repo.save(user);
+		//		repo.save(user);
 		structrure.setStatus(HttpStatus.OK.value());
 		structrure.setMessage("user added to academic");
 		structrure.setData(mapUserToUserResponse(user));
@@ -129,6 +136,27 @@ public class UserServiceImpl implements UserService {
 		return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.OK);
 
 
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> addSubjectToUser(int subjectId, int userId) {
+
+		User user = repo.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("user not found"));
+
+		Subject subject = subjectRepo.findById(subjectId).orElseThrow(()->new SubjectNotFoundException("subject not found"));
+
+		if(user.getUserRole().equals(UserRole.TEACHER)) {
+
+			user.setSubject(subject);
+			repo.save(user);
+			structrure.setMessage("subject added to user successfully");
+			structrure.setStatus(HttpStatus.OK.value());
+			structrure.setData(mapUserToUserResponse(user));
+
+			return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.OK);
+		}
+		else {
+			throw new TeacherNotFoundException("teacher  not found");
+		}
 	}
 
 

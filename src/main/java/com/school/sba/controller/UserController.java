@@ -49,6 +49,12 @@ public class UserController {
 	{
 		return userService.addUserToAcademic(programId,userId);
 	}
+	
+	@PutMapping("/subjects/{subjectId}/users/{userId}")
+	public ResponseEntity<ResponseStructure<UserResponse>> addSubjectToUser(@PathVariable int subjectId,@PathVariable int userId){
+		
+		return userService.addSubjectToUser(subjectId,userId);
+	}
 
 
 

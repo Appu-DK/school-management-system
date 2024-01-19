@@ -2,12 +2,14 @@ package com.school.sba.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.school.sba.entity.AcademicProgram;
 import com.school.sba.entity.Subject;
 import com.school.sba.repository.AcademicProgramRepo;
 import com.school.sba.repository.SubjectRepo;
@@ -33,6 +35,25 @@ public class SubjectServiceImpl implements SubjectService {
 
 	@Autowired
 	private AcademicProgramImpl academicProgramImpl;
+
+	@Autowired
+	private ResponseStructure<List<SubjectResponse>> listStructure;
+
+	private List<SubjectResponse> mapTOListOfSubjectResponse(List<Subject> listOfSubjects) {
+		List<SubjectResponse> listOfSubjectResponse = new ArrayList<>();
+
+		listOfSubjects.forEach(subject -> {
+			SubjectResponse sr = new SubjectResponse();
+			sr.setSubjectId(subject.getSubjectId());
+			sr.setSubjectNames(subject.getSubjectName());
+			listOfSubjectResponse.add(sr);
+		});
+
+		return listOfSubjectResponse;
+	}
+
+
+
 
 	@Override
 	public ResponseEntity<ResponseStructure<AcademicProgramResponse>> addSubject(int programId, SubjectRequest subjectRequest){
@@ -72,9 +93,31 @@ public class SubjectServiceImpl implements SubjectService {
 
 	@Override
 	public ResponseEntity<ResponseStructure<AcademicProgramResponse>> updateSubject(int programId,
-			SubjectRequest subjectRequest) {
+			SubjectRequest subjectRequest)
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
+	public ResponseEntity<ResponseStructure<List<SubjectResponse>>> findAllSubjects() {
+
+		List<Subject> listOfSubjects = subjectRepo.findAll();
+		if(listOfSubjects.isEmpty()) {
+			listStructure.setStatus(HttpStatus.NOT_FOUND.value());
+			listStructure.setMessage("subjects not found");
+			listStructure.setData(mapTOListOfSubjectResponse(listOfSubjects));
+			return new ResponseEntity<ResponseStructure<List<SubjectResponse>>>(listStructure,HttpStatus.NOT_FOUND);
+		}
+		else {
+			listStructure.setMessage("subjects founds succesfully");
+			listStructure.setStatus(HttpStatus.FOUND.value());
+			listStructure.setData(mapTOListOfSubjectResponse(listOfSubjects));
+
+			return new ResponseEntity<ResponseStructure<List<SubjectResponse>>>(listStructure,HttpStatus.FOUND);
+		}
+
+	}
+
 }
+
