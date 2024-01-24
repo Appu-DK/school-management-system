@@ -4,6 +4,7 @@ import org.hibernate.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.school.sba.entity.AcademicProgram;
 import com.school.sba.entity.Subject;
@@ -41,10 +42,13 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private AcademicProgramRepo academicProgramRepo;
 
+	@Autowired
+	private PasswordEncoder encoder;
+
 	private User mapUserRequestToUser(UserRequest userRequest) {
 		return	User.builder()
 				.userName(userRequest.getUserName())
-				.password(userRequest.getPassword())
+				.password(encoder.encode(userRequest.getPassword()))
 				.firstName(userRequest.getFirstName())
 				.lastName(userRequest.getLastName())
 				.email(userRequest.getEmail())

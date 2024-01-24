@@ -1,14 +1,11 @@
 package com.school.sba.serviceimpl;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.school.sba.entity.School;
-import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
 import com.school.sba.exception.AdminNotFoundException;
 import com.school.sba.exception.SchoolAlreadyExistingException;
@@ -20,8 +17,6 @@ import com.school.sba.requestdto.SchoolRequest;
 import com.school.sba.responsedto.SchoolResponse;
 import com.school.sba.service.SchoolService;
 import com.school.sba.utility.ResponseStructure;
-
-import jakarta.validation.Valid;
 
 @Service
 public class SchoolServiceImpl implements SchoolService{
