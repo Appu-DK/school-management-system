@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.school.sba.entity.User;
+import com.school.sba.enums.UserRole;
 import com.school.sba.requestdto.UserRequest;
 import com.school.sba.responsedto.AcademicProgramRequest;
 import com.school.sba.responsedto.UserResponse;
@@ -25,6 +26,10 @@ public interface UserService  {
 			int userId);
 
 	ResponseEntity<ResponseStructure<UserResponse>> addSubjectToUser(int subjectId, int userId);
+
+	ResponseEntity<ResponseStructure<UserResponse>> registerAdmin(UserRequest userRequest);
+
+	ResponseEntity<ResponseStructure<UserResponse>> addOtherUser(UserRequest userRequest);
 
 
 

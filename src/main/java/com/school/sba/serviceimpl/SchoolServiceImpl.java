@@ -3,6 +3,7 @@ package com.school.sba.serviceimpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.school.sba.entity.School;
@@ -51,14 +52,16 @@ public class SchoolServiceImpl implements SchoolService{
 
 
 	@Override
-	public ResponseEntity<ResponseStructure<SchoolResponse>> saveSchool(int userId, SchoolRequest schoolRequest) {
-
-		return userRepo.findById(userId).map(u->{
+	public ResponseEntity<ResponseStructure<SchoolResponse>> saveSchool( SchoolRequest schoolRequest) {
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		return userRepo.findByUserName(userName).map(u->{
 			if(u.getUserRole().equals(UserRole.ADMIN)) {
 				if(u.getSchool()==null) {
 					School school = mapSchoolRequestToSchool(schoolRequest);
-					school=schoolRepo.save(school);
-					u.setSchool(school);
+					userRepo.findAll().forEach(user->{
+						user.setSchool(school);
+						schoolRepo.save(school);
+					});
 					userRepo.save(u);
 					structure.setMessage("school saved succesfully");
 					structure.setStatus(HttpStatus.CREATED.value());
@@ -101,16 +104,16 @@ public class SchoolServiceImpl implements SchoolService{
 	}
 	@Override
 	public ResponseEntity<ResponseStructure<SchoolResponse>> deleteSchool(int schoolId) {
-		
+
 		School school = schoolRepo.findById(schoolId)
-		.orElseThrow(()->new SchoolNotFoundByIdException("school cannot be deleted because school is not exist"));
+				.orElseThrow(()->new SchoolNotFoundByIdException("school cannot be deleted because school is not exist"));
 		schoolRepo.deleteById(schoolId);
 		structure.setMessage("school deleted");
 		structure.setStatus(HttpStatus.OK.value());
 		structure.setData(mapSchoolToSchoolResponse(school));
-		
+
 		return new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.OK);
-		
+
 	}
 	@Override
 	public ResponseEntity<ResponseStructure<SchoolResponse>> updateSchool(int schoolId, SchoolRequest schoolRequest) {
@@ -119,22 +122,22 @@ public class SchoolServiceImpl implements SchoolService{
 			school.setSchoolId(schoolId);
 			return schoolRepo.save(school);
 		})
-		.orElseThrow(()->new SchoolNotFoundByIdException("school is not updated becz school is not exist"));
+				.orElseThrow(()->new SchoolNotFoundByIdException("school is not updated becz school is not exist"));
 		structure.setMessage("school updated successfully");
 		structure.setStatus(HttpStatus.OK.value());
 		structure.setData(mapSchoolToSchoolResponse(existSchool));
-		
+
 		return new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.OK);
 	}
 	@Override
 	public ResponseEntity<ResponseStructure<SchoolResponse>> findSchool(int schoolId) {
 		School school = schoolRepo.findById(schoolId)
 				.orElseThrow(()-> new SchoolNotFoundByIdException("school is not found"));
-	
+
 		structure.setMessage("school data found in database");
 		structure.setStatus(HttpStatus.FOUND.value());
 		structure.setData(mapSchoolToSchoolResponse(school));
-		
+
 		return new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.FOUND);
 	}
 

@@ -26,7 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Component
+//@Component
 public class AcademicProgram {
 
 	@Id

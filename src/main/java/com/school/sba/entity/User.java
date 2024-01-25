@@ -51,6 +51,9 @@ public class User {
 	
 	@ManyToOne
 	private Subject subject;
+	
+	
+	
 
 
 
