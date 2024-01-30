@@ -1,6 +1,7 @@
 package com.school.sba.serviceimpl;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.school.sba.entity.AcademicProgram;
 import com.school.sba.entity.Subject;
+import com.school.sba.entity.User;
+import com.school.sba.enums.UserRole;
 import com.school.sba.exception.AcademicProgramNotFoundException;
+import com.school.sba.exception.InvalidUserRoleException;
 import com.school.sba.exception.SchoolNotFoundByIdException;
 import com.school.sba.repository.AcademicProgramRepo;
 import com.school.sba.repository.SchoolRepo;
@@ -19,7 +23,9 @@ import com.school.sba.repository.SubjectRepo;
 import com.school.sba.requestdto.AcademicProgramResponse;
 import com.school.sba.requestdto.SubjectRequest;
 import com.school.sba.responsedto.AcademicProgramRequest;
+import com.school.sba.responsedto.UserResponse;
 import com.school.sba.service.AcademicProgramService;
+import com.school.sba.utility.ResponseEntityProxy;
 import com.school.sba.utility.ResponseStructure;
 
 @Service
@@ -39,6 +45,7 @@ public class AcademicProgramImpl implements AcademicProgramService{
 
 	@Autowired
 	private ResponseStructure<List<AcademicProgramResponse>> listStructure;
+
 
 
 	public AcademicProgramResponse mapAcademicToAcademicResponse(AcademicProgram academicProgram) {
@@ -184,7 +191,52 @@ public class AcademicProgramImpl implements AcademicProgramService{
 		return null;
 	}
 
+	
 
+
+	//	@Override
+	//	public ResponseEntity<ResponseStructure<List<User>>> getAllUsers(int programId) {
+	//
+	//		List<User> allUsers=new ArrayList<>();
+	//		AcademicProgram academicProgram = academicProgramRepo.findById(programId).orElseThrow(()-> new AcademicProgramNotFoundException("academic program is not found"));
+	//		List<User> listOfUsers = academicProgram.getListOfUsers();
+	//		for(User user:listOfUsers) {
+	//			allUsers.add(user);
+	//		}
+	//
+	//		listOfUserStructure.setData(allUsers);
+	//		listOfUserStructure.setMessage("get all the users from academic program");
+	//		listOfUserStructure.setStatus(HttpStatus.OK.value());
+	//		return new ResponseEntity<ResponseStructure<List<User>>>(listOfUserStructure,HttpStatus.OK);
+	//	}
+
+/*return academicProgramRepo.findById(programId)
+				.map(academicProgram->{
+
+					UserRole user = UserRole.valueOf(userRole.toUpperCase());
+					if(EnumSet.allOf(UserRole.class).contains(user))
+					{
+						List<User> listOfUsers = academicProgramRepo.findAllByUserRole(user);
+
+						List<UserResponse> listOfUserResponses=new ArrayList<>();
+
+						for(int i=0;i<listOfUsers.size();i++) {
+							listOfUserResponses.add(userServiceImpl.mapUserToUserResponse(listOfUsers.get(i)));
+
+						}
+						if(listOfUserResponses.isEmpty()) {
+							ResponseEntityProxy.setResponseStructure(HttpStatus.NOT_FOUND, "no users", listOfUserResponses);
+						}
+						else {
+							ResponseEntityProxy.setResponseStructure(HttpStatus.FOUND, "fetch all users", listOfUserResponses);
+						}
+					}
+					else
+						throw new  InvalidUserRoleException("invalid user role");
+
+				})
+				.orElseThrow(()-> new AcademicProgramNotFoundException("academic program is not found"));
+*/
 
 
 

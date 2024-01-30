@@ -1,6 +1,6 @@
 package com.school.sba.responsedto;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 import com.school.sba.enums.ClassStatus;
 
@@ -19,8 +19,8 @@ public class ClassHourResponse {
 
 	private int classHourId;
 
-	private LocalTime classBeginsAt;
-	private LocalTime classEndsAt;
+	private LocalDateTime classBeginsAt;
+	private LocalDateTime classEndsAt;
 	private int classRoomNumber;
 
 	private ClassStatus classStatus;

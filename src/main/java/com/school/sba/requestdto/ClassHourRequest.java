@@ -13,9 +13,9 @@ import lombok.Setter;
 @Builder
 public class ClassHourRequest {
 
-	private LocalTime classBeginsAt;
-	private LocalTime classEndsAt;
-	private int classRoomNumber;
-	private ClassStatus classStatus;
+	private int classHourId;
+	private int subjectId;
+	private int userId;
+	private int roomNo;
 
 }

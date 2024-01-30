@@ -1,5 +1,9 @@
 package com.school.sba.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+
 import org.hibernate.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +20,8 @@ import com.school.sba.exception.AcademicProgramNotFoundException;
 import com.school.sba.exception.AdminCannotBeAssignedToAcademicProgram;
 import com.school.sba.exception.AdminNotFoundException;
 import com.school.sba.exception.ExistingAdminException;
+import com.school.sba.exception.InvalidUserRoleAdminException;
+import com.school.sba.exception.InvalidUserRoleException;
 import com.school.sba.exception.SubjectNotFoundException;
 import com.school.sba.exception.TeacherNotFoundException;
 import com.school.sba.exception.UserNotFoundByIdException;
@@ -26,6 +32,7 @@ import com.school.sba.requestdto.UserRequest;
 import com.school.sba.responsedto.AcademicProgramRequest;
 import com.school.sba.responsedto.UserResponse;
 import com.school.sba.service.UserService;
+import com.school.sba.utility.ResponseEntityProxy;
 import com.school.sba.utility.ResponseStructure;
 
 import jakarta.security.auth.message.callback.PrivateKeyCallback.Request;
@@ -60,7 +67,7 @@ public class UserServiceImpl implements UserService {
 				.userRole(userRequest.getUserRole())
 				.build();
 	}
-	private UserResponse mapUserToUserResponse(User user) {
+	public UserResponse mapUserToUserResponse(User user) {
 		return UserResponse.builder()
 				.userId(user.getUserId())
 				.userName(user.getUserName())
@@ -209,6 +216,17 @@ public class UserServiceImpl implements UserService {
 										}
 
 									}
+									else if	(user.getUserRole().equals(UserRole.STUDENT)) {
+										academicProgram.getListOfUsers().add(user);
+										repo.save(user);
+										academicProgramRepo.save(academicProgram);
+										
+										structrure.setData(mapUserToUserResponse(user));
+										structrure.setMessage("added user to academic");
+										structrure.setStatus(HttpStatus.OK.value());
+										
+									return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.OK);	
+									}
 									else {
 										throw new TeacherNotFoundException("teacher is not found");}
 									return null;
@@ -244,6 +262,40 @@ public class UserServiceImpl implements UserService {
 		else {
 			throw new TeacherNotFoundException("teacher  not found");
 		}
+	}
+	@Override
+	public ResponseEntity<ResponseStructure<List<UserResponse>>> getUsers(int programId, String userRole) {
+
+
+		return academicProgramRepo.findById(programId)
+				.map(academicProgram->{
+					UserRole user = UserRole.valueOf(userRole.toUpperCase());
+					if(EnumSet.allOf(UserRole.class).contains(user)) {
+						if(user.equals(UserRole.ADMIN)) {
+							throw new InvalidUserRoleAdminException("admin cannot fetched");
+						}
+						List<User> listOfUsers = academicProgram.getListOfUsers();
+						List<UserResponse> listOfResponses=new ArrayList<>();
+
+						for(int i=0;i<listOfUsers.size();i++) {
+							if(listOfUsers.get(i).getUserRole().equals(user))
+							{
+								listOfResponses.add(mapUserToUserResponse(listOfUsers.get(i)));
+							}
+						}
+						if(listOfResponses.isEmpty()) {
+							return ResponseEntityProxy.setResponseStructure(HttpStatus.NOT_FOUND, "user is not found", listOfResponses);
+						}
+						else {
+							return ResponseEntityProxy.setResponseStructure(HttpStatus.FOUND,"get all user with specified user role",listOfResponses);
+						}
+
+					}
+					else {
+						throw new InvalidUserRoleException("invalid user rolee");
+					}
+				})
+				.orElseThrow(()->new AcademicProgramNotFoundException("academic program is not found"));
 	}
 
 

@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 
+import com.school.sba.entity.User;
 import com.school.sba.requestdto.AcademicProgramResponse;
 import com.school.sba.requestdto.SubjectRequest;
 import com.school.sba.responsedto.AcademicProgramRequest;
+import com.school.sba.responsedto.UserResponse;
 import com.school.sba.utility.ResponseStructure;
 
 public interface AcademicProgramService {
@@ -20,5 +22,6 @@ public interface AcademicProgramService {
 			SubjectRequest subjectRequest);
 
 	
+
 
 }

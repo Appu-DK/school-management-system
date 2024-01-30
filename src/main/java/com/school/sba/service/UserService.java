@@ -1,5 +1,7 @@
 package com.school.sba.service;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,8 @@ public interface UserService  {
 	ResponseEntity<ResponseStructure<UserResponse>> registerAdmin(UserRequest userRequest);
 
 	ResponseEntity<ResponseStructure<UserResponse>> addOtherUser(UserRequest userRequest);
+
+	ResponseEntity<ResponseStructure<List<UserResponse>>> getUsers(int programId, String userRole);
 
 
 
