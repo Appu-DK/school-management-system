@@ -21,6 +21,8 @@ public interface AcademicProgramService {
 	ResponseEntity<ResponseStructure<AcademicProgramResponse>> updateSubject(int programId,
 			SubjectRequest subjectRequest);
 
+	ResponseEntity<ResponseStructure<AcademicProgramResponse>> deleteAcademicProgram(int programId);
+
 	
 
 

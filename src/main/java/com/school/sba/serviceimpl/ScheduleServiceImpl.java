@@ -21,6 +21,7 @@ import com.school.sba.repository.SchoolRepo;
 import com.school.sba.requestdto.ScheduleRequest;
 import com.school.sba.responsedto.ScheduleResponse;
 import com.school.sba.service.ScheduleService;
+import com.school.sba.utility.ResponseEntityProxy;
 import com.school.sba.utility.ResponseStructure;
 
 @Service
@@ -121,6 +122,13 @@ public class ScheduleServiceImpl implements ScheduleService{
 				})
 				.orElseThrow(()-> new ScheduleNotFoundException("schedule not found"));
 
+	}
+	
+	public void deleteSchedule(Schedule schedule){
+		schedule=scheduleRepo.findById(schedule.getScheduleId()).orElseThrow(()-> new ScheduleNotFoundException("schedule is not found"));
+		
+		scheduleRepo.delete(schedule);
+	
 	}
 
 

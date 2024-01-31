@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.school.sba.responsedto.SchoolResponse.SchoolResponseBuilder;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,8 +36,9 @@ public class School {
 	private long contactNo;
 	private String emailId;
 	private String address;
+	private boolean isDeleted;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.REMOVE)
 	private Schedule schedule;
 
 	@OneToMany(mappedBy = "school")

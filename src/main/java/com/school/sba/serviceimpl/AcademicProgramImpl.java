@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.school.sba.entity.AcademicProgram;
+import com.school.sba.entity.ClassHour;
 import com.school.sba.entity.Subject;
 import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
@@ -18,6 +19,7 @@ import com.school.sba.exception.AcademicProgramNotFoundException;
 import com.school.sba.exception.InvalidUserRoleException;
 import com.school.sba.exception.SchoolNotFoundByIdException;
 import com.school.sba.repository.AcademicProgramRepo;
+import com.school.sba.repository.ClassHourRepo;
 import com.school.sba.repository.SchoolRepo;
 import com.school.sba.repository.SubjectRepo;
 import com.school.sba.requestdto.AcademicProgramResponse;
@@ -39,6 +41,9 @@ public class AcademicProgramImpl implements AcademicProgramService{
 
 	@Autowired
 	private SchoolRepo schoolRepo;
+
+	@Autowired
+	private ClassHourRepo classHourRepo;
 
 	@Autowired
 	private ResponseStructure<AcademicProgramResponse> structure;
@@ -191,7 +196,19 @@ public class AcademicProgramImpl implements AcademicProgramService{
 		return null;
 	}
 
-	
+	@Override
+	public ResponseEntity<ResponseStructure<AcademicProgramResponse>> deleteAcademicProgram(int programId) {
+
+		AcademicProgram academicProgram = academicProgramRepo.findById(programId)
+				.orElseThrow(()-> new AcademicProgramNotFoundException("academic program is not found"));
+
+		academicProgram.setDeleted(true);
+		academicProgramRepo.save(academicProgram);
+
+		return new ResponseEntityProxy().setResponseStructure(HttpStatus.OK, "academic program is soft deleted successfully", mapAcademicToAcademicResponse(academicProgram));
+	}
+
+
 
 
 	//	@Override
@@ -210,7 +227,7 @@ public class AcademicProgramImpl implements AcademicProgramService{
 	//		return new ResponseEntity<ResponseStructure<List<User>>>(listOfUserStructure,HttpStatus.OK);
 	//	}
 
-/*return academicProgramRepo.findById(programId)
+	/*return academicProgramRepo.findById(programId)
 				.map(academicProgram->{
 
 					UserRole user = UserRole.valueOf(userRole.toUpperCase());
@@ -236,7 +253,16 @@ public class AcademicProgramImpl implements AcademicProgramService{
 
 				})
 				.orElseThrow(()-> new AcademicProgramNotFoundException("academic program is not found"));
-*/
+	 */
+
+
+	public void  hardDeleteAcademic(int academicProgram) {
+		AcademicProgram academic = academicProgramRepo.findById(academicProgram).orElseThrow(()-> new AcademicProgramNotFoundException("academic program is not found"));
+
+		classHourRepo.deleteAll(academic.getListOfClassHours());
+		academicProgramRepo.delete(academic);
+
+	}
 
 
 

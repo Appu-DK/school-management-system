@@ -1,8 +1,10 @@
 package com.school.sba.serviceimpl;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.school.sba.entity.AcademicProgram;
+import com.school.sba.entity.ClassHour;
 import com.school.sba.entity.School;
 import com.school.sba.entity.Subject;
 import com.school.sba.entity.User;
@@ -26,6 +29,7 @@ import com.school.sba.exception.SubjectNotFoundException;
 import com.school.sba.exception.TeacherNotFoundException;
 import com.school.sba.exception.UserNotFoundByIdException;
 import com.school.sba.repository.AcademicProgramRepo;
+import com.school.sba.repository.ClassHourRepo;
 import com.school.sba.repository.SubjectRepo;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.requestdto.UserRequest;
@@ -37,13 +41,17 @@ import com.school.sba.utility.ResponseStructure;
 
 import jakarta.security.auth.message.callback.PrivateKeyCallback.Request;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @org.springframework.stereotype.Service
 public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserRepo repo;
 
+	@Autowired
+	private ClassHourRepo classHourRepo;
 	@Autowired
 	private SubjectRepo subjectRepo;
 
@@ -106,6 +114,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponse>> addOtherUser(UserRequest userRequest) {
 
+		//		List<User> users = repo.findByIsDeletedIsTrue();
+		//		
+		//		for(User user:users) {
+		//			System.out.println(user);
+		//		}
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
 		if(userRequest.getUserRole().equals(UserRole.ADMIN)) {
 			throw new ExistingAdminException("admin is already present");
@@ -220,12 +233,12 @@ public class UserServiceImpl implements UserService {
 										academicProgram.getListOfUsers().add(user);
 										repo.save(user);
 										academicProgramRepo.save(academicProgram);
-										
+
 										structrure.setData(mapUserToUserResponse(user));
 										structrure.setMessage("added user to academic");
 										structrure.setStatus(HttpStatus.OK.value());
-										
-									return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.OK);	
+
+										return new ResponseEntity<ResponseStructure<UserResponse>>(structrure,HttpStatus.OK);	
 									}
 									else {
 										throw new TeacherNotFoundException("teacher is not found");}
@@ -270,24 +283,19 @@ public class UserServiceImpl implements UserService {
 		return academicProgramRepo.findById(programId)
 				.map(academicProgram->{
 					UserRole user = UserRole.valueOf(userRole.toUpperCase());
+
 					if(EnumSet.allOf(UserRole.class).contains(user)) {
 						if(user.equals(UserRole.ADMIN)) {
 							throw new InvalidUserRoleAdminException("admin cannot fetched");
 						}
-						List<User> listOfUsers = academicProgram.getListOfUsers();
-						List<UserResponse> listOfResponses=new ArrayList<>();
 
-						for(int i=0;i<listOfUsers.size();i++) {
-							if(listOfUsers.get(i).getUserRole().equals(user))
-							{
-								listOfResponses.add(mapUserToUserResponse(listOfUsers.get(i)));
-							}
-						}
-						if(listOfResponses.isEmpty()) {
-							return ResponseEntityProxy.setResponseStructure(HttpStatus.NOT_FOUND, "user is not found", listOfResponses);
+
+						List<UserResponse> listOfUsers =repo.findByUserRoleAndListofAcademicPrograms( user,academicProgram).stream().map(this::mapUserToUserResponse).collect(Collectors.toList());
+						if(listOfUsers.isEmpty()) {
+							return ResponseEntityProxy.setResponseStructure(HttpStatus.NOT_FOUND, "user is not found", listOfUsers);
 						}
 						else {
-							return ResponseEntityProxy.setResponseStructure(HttpStatus.FOUND,"get all user with specified user role",listOfResponses);
+							return ResponseEntityProxy.setResponseStructure(HttpStatus.FOUND,"get all user with specified user role",listOfUsers);
 						}
 
 					}
@@ -297,6 +305,27 @@ public class UserServiceImpl implements UserService {
 				})
 				.orElseThrow(()->new AcademicProgramNotFoundException("academic program is not found"));
 	}
+
+
+	public void hardDeleteUser(int userId) {
+		User user = repo.findById(userId).orElseThrow(()-> new UserNotFoundByIdException("user is not found"));
+
+		List<ClassHour> classHours = classHourRepo.findByUser(user);
+		for(ClassHour classHour:classHours) {
+			classHour.setUser(null);
+			classHourRepo.save(classHour);
+		}
+		List<AcademicProgram> academicPrograms = user.getListofAcademicPrograms();
+		for(AcademicProgram academic :academicPrograms) {
+			academic.setListOfUsers(null);
+			academicProgramRepo.save(academic);
+		}
+
+
+		repo.delete(user);
+
+	}
+
 
 
 

@@ -18,6 +18,8 @@ public interface SubjectService {
 
 	ResponseEntity<ResponseStructure<List<SubjectResponse>>> findAllSubjects();
 
-	
+	ResponseEntity<ResponseStructure<SubjectResponse>> deleteSubject(int subjectId);
+
+
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.info.ProjectInfoProperties.Build;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,11 @@ import com.school.sba.requestdto.AcademicProgramResponse;
 import com.school.sba.requestdto.SubjectRequest;
 import com.school.sba.responsedto.SubjectResponse;
 import com.school.sba.service.SubjectService;
+import com.school.sba.utility.ResponseEntityProxy;
 import com.school.sba.utility.ResponseStructure;
+
+import lombok.Builder;
+
 import com.school.sba.exception.*;
 
 
@@ -50,6 +55,15 @@ public class SubjectServiceImpl implements SubjectService {
 		});
 
 		return listOfSubjectResponse;
+	}
+
+	private SubjectResponse mapSubjectToSubjectResponse(Subject subject) {
+
+		return SubjectResponse.builder()
+				.subjectNames(subject.getSubjectName())
+				.subjectId(subject.getSubjectId())
+				.build();
+
 	}
 
 
@@ -116,6 +130,18 @@ public class SubjectServiceImpl implements SubjectService {
 
 			return new ResponseEntity<ResponseStructure<List<SubjectResponse>>>(listStructure,HttpStatus.FOUND);
 		}
+
+	}
+
+
+
+
+	@Override
+	public ResponseEntity<ResponseStructure<SubjectResponse>> deleteSubject(int subjectId) {
+		Subject subject = subjectRepo.findById(subjectId).orElseThrow(()-> new SubjectNotFoundException("subject is not found"));
+		
+		subjectRepo.delete(subject);
+		return  ResponseEntityProxy.setResponseStructure(HttpStatus.OK, "subject deleted", mapSubjectToSubjectResponse(subject));
 
 	}
 

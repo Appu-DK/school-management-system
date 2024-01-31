@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.school.sba.enums.ProgramType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,6 +38,8 @@ public class AcademicProgram {
 	private String programName;
 	private LocalTime programBeginsAt;
 	private LocalTime programEndsAt;
+	
+	private boolean isDeleted;
 
 	@ManyToOne
 	private School school;
@@ -47,7 +50,7 @@ public class AcademicProgram {
 	@ManyToMany
 	private List<User>listOfUsers;
 	
-	@OneToMany
+	@OneToMany(mappedBy="academicPrograms")
 	private List<ClassHour> listOfClassHours;
 
 }

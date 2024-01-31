@@ -1,22 +1,28 @@
 package com.school.sba.serviceimpl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.school.sba.entity.AcademicProgram;
 import com.school.sba.entity.School;
+import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
 import com.school.sba.exception.AdminNotFoundException;
 import com.school.sba.exception.SchoolAlreadyExistingException;
 import com.school.sba.exception.SchoolNotFoundByIdException;
 import com.school.sba.exception.UserNotFoundByIdException;
+import com.school.sba.repository.AcademicProgramRepo;
 import com.school.sba.repository.SchoolRepo;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.requestdto.SchoolRequest;
 import com.school.sba.responsedto.SchoolResponse;
 import com.school.sba.service.SchoolService;
+import com.school.sba.utility.ResponseEntityProxy;
 import com.school.sba.utility.ResponseStructure;
 
 @Service
@@ -30,6 +36,9 @@ public class SchoolServiceImpl implements SchoolService{
 
 	@Autowired
 	private UserRepo userRepo;
+
+	@Autowired
+	private AcademicProgramRepo academicProgramRepo;
 
 	private School mapSchoolRequestToSchool(SchoolRequest schoolRequest) {
 
@@ -102,19 +111,7 @@ public class SchoolServiceImpl implements SchoolService{
 		//		}
 
 	}
-	@Override
-	public ResponseEntity<ResponseStructure<SchoolResponse>> deleteSchool(int schoolId) {
 
-		School school = schoolRepo.findById(schoolId)
-				.orElseThrow(()->new SchoolNotFoundByIdException("school cannot be deleted because school is not exist"));
-		schoolRepo.deleteById(schoolId);
-		structure.setMessage("school deleted");
-		structure.setStatus(HttpStatus.OK.value());
-		structure.setData(mapSchoolToSchoolResponse(school));
-
-		return new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.OK);
-
-	}
 	@Override
 	public ResponseEntity<ResponseStructure<SchoolResponse>> updateSchool(int schoolId, SchoolRequest schoolRequest) {
 		School existSchool = schoolRepo.findById(schoolId).map(u->{
@@ -140,6 +137,48 @@ public class SchoolServiceImpl implements SchoolService{
 
 		return new ResponseEntity<ResponseStructure<SchoolResponse>>(structure,HttpStatus.FOUND);
 	}
+
+	@Override
+	public ResponseEntity<ResponseStructure<SchoolResponse>> deleteSchool(int schoolId) {
+
+		School school = schoolRepo.findById(schoolId)
+				.orElseThrow(()->new SchoolNotFoundByIdException("school cannot be deleted because school is not exist"));
+
+		school.setDeleted(true);
+		schoolRepo.save(school);
+
+		return new ResponseEntityProxy().setResponseStructure(HttpStatus.OK ,"school is soft deleted", mapSchoolToSchoolResponse(school));
+	}
+
+	public void hardDeleteSchool(int schoolId) {
+
+		School school = schoolRepo.findById(schoolId).orElseThrow(()-> new SchoolNotFoundByIdException("school is not found"));
+
+		List<AcademicProgram> academic = school.getListOfAcademicPrograms();
+		for(AcademicProgram acdAcademicProgram:academic) {
+			acdAcademicProgram.setSchool(null);
+			academicProgramRepo.save(acdAcademicProgram);
+		}
+		List<User> users = userRepo.findBySchool(school);
+		for(User user:users) {
+			user.setSchool(null);
+			userRepo.save(user);
+		}
+
+		schoolRepo.delete(school);
+	}
+
+	/*schoolRepo.findByIsDeleted(true).forEach(school -> {
+		
+		academicProgramRepository.deleteAll(school.getListOfAcademicPrograms());
+		
+		userRepo.deleteAll(userRepo.findBySchool(school));
+		
+		schoolRepo.delete(school);
+	});
+	
+}*/
+
 
 
 

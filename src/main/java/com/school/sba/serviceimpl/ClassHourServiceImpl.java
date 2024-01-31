@@ -217,4 +217,9 @@ public class ClassHourServiceImpl implements ClassHourService {
 		return new ResponseEntity<ResponseStructure<List<ClassHourResponse>>>(listStructure,HttpStatus.FOUND);
 
 	}
+
+	public void deleteClassHour(List<ClassHour> classHour) {
+
+		classHourRepo.deleteAll();
+	}
 }
