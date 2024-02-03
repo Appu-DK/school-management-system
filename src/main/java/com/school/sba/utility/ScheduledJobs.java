@@ -14,6 +14,7 @@ import com.school.sba.repository.ClassHourRepo;
 import com.school.sba.repository.SchoolRepo;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.serviceimpl.AcademicProgramImpl;
+import com.school.sba.serviceimpl.ClassHourServiceImpl;
 import com.school.sba.serviceimpl.SchoolServiceImpl;
 import com.school.sba.serviceimpl.UserServiceImpl;
 
@@ -42,39 +43,59 @@ public class ScheduledJobs {
 
 	@Autowired
 	private SchoolServiceImpl schoolService;
+	
+	@Autowired
+	private ClassHourServiceImpl classHourServiceImpl;
 
-		@Scheduled(fixedDelay = 1000l)
-		public void test() {
-			System.out.println("scheduled jobs!!!!");
-		}
-
-	@Scheduled(fixedDelay = 1000l)
-	@Transactional
-	public void hardDeleteUser() {
-
-		List<User> users = repo.findByIsDeletedIsTrue();
-		for(User user:users) {
-
-
-			userService.hardDeleteUser(user.getUserId());
-		}
-	}
-	@Scheduled(fixedDelay = 1000l)
-	@Transactional
-	public void hardDeleteAcademicProgram() {
-
-		List<AcademicProgram> academicProgram = academicRepo.findByIsDeletedIsTrue();
-		for(AcademicProgram academic:academicProgram) {
-			academicService.hardDeleteAcademic(academic.getProgramId());
-		}
-	}
-
-	@Scheduled(fixedDelay=1000l)
-	@Transactional
-	public void hardDeleteSchool() {
-
-		School school = schoolRepo.findByIsDeletedIsTrue();
-		schoolService.hardDeleteSchool(school.getSchoolId());
-
-	}
+//	@Scheduled(fixedDelay = 1000l)
+//	public void test() {
+//		System.out.println("scheduled jobs!!!!");
+//	}
+//
+//	@Scheduled(fixedDelay = 1000l)
+//	@Transactional
+//	public void hardDeleteUser() {
+//
+//		List<User> users = repo.findByIsDeletedIsTrue();
+//		for(User user:users) {
+//
+//
+//			userService.hardDeleteUser(user.getUserId());
+//		}
+//	}
+//	@Scheduled(fixedDelay = 1000l)
+//	@Transactional
+//	public void hardDeleteAcademicProgram() {
+//
+//		List<AcademicProgram> academicProgram = academicRepo.findByIsDeletedIsTrue();
+//		for(AcademicProgram academic:academicProgram) {
+//			academicService.hardDeleteAcademic(academic.getProgramId());
+//		}
+//	}
+//
+//	@Scheduled(fixedDelay=1000l)
+//	@Transactional
+//	public void hardDeleteSchool() {
+//
+//		List<School> schools = schoolRepo.findByIsDeletedIsTrue();
+//		for(School school:schools) {
+//			schoolService.hardDeleteSchool(school.getSchoolId());
+//		}
+//	}
+//	
+//	
+//	@Scheduled(cron = "0 0 0 ? * MON")
+//	void classHourWeekly() {
+//		
+//		AcademicProgram ap = academicRepo.findById(1).orElseThrow();
+//		
+//		if(ap.isAutoRepeat()) {
+//			
+//			
+//			classHourServiceImpl.classHourForNextWeek(ap.getProgramId());
+//			
+//		}
+//		
+//		
+//	}
 }

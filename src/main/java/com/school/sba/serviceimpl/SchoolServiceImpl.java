@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.school.sba.entity.AcademicProgram;
+import com.school.sba.entity.ClassHour;
 import com.school.sba.entity.School;
 import com.school.sba.entity.User;
 import com.school.sba.enums.UserRole;
@@ -17,6 +18,7 @@ import com.school.sba.exception.SchoolAlreadyExistingException;
 import com.school.sba.exception.SchoolNotFoundByIdException;
 import com.school.sba.exception.UserNotFoundByIdException;
 import com.school.sba.repository.AcademicProgramRepo;
+import com.school.sba.repository.ClassHourRepo;
 import com.school.sba.repository.SchoolRepo;
 import com.school.sba.repository.UserRepo;
 import com.school.sba.requestdto.SchoolRequest;
@@ -36,6 +38,9 @@ public class SchoolServiceImpl implements SchoolService{
 
 	@Autowired
 	private UserRepo userRepo;
+	
+	@Autowired
+	private ClassHourRepo classHourRepo;
 
 	@Autowired
 	private AcademicProgramRepo academicProgramRepo;
@@ -151,35 +156,22 @@ public class SchoolServiceImpl implements SchoolService{
 	}
 
 	public void hardDeleteSchool(int schoolId) {
-
-		School school = schoolRepo.findById(schoolId).orElseThrow(()-> new SchoolNotFoundByIdException("school is not found"));
-
-		List<AcademicProgram> academic = school.getListOfAcademicPrograms();
-		for(AcademicProgram acdAcademicProgram:academic) {
-			acdAcademicProgram.setSchool(null);
-			academicProgramRepo.save(acdAcademicProgram);
-		}
-		List<User> users = userRepo.findBySchool(school);
-		for(User user:users) {
-			user.setSchool(null);
-			userRepo.save(user);
-		}
-
-		schoolRepo.delete(school);
+		schoolRepo.findByIsDeleted(true).forEach(school->{
+			List<AcademicProgram> academics = school.getListOfAcademicPrograms();
+			for(AcademicProgram academic:academics) {
+				classHourRepo.deleteAll(academic.getListOfClassHours());
+				academicProgramRepo.delete(academic);
+			}
+			
+			 List<User> users = userRepo.findBySchool(school);
+			 for(User user:users) {
+				 if(!user.equals(UserRole.ADMIN)) {
+					 userRepo.delete(user);
+				 }
+			 }		
+			schoolRepo.delete(school);
+		});
+		
 	}
-
-	/*schoolRepo.findByIsDeleted(true).forEach(school -> {
-		
-		academicProgramRepository.deleteAll(school.getListOfAcademicPrograms());
-		
-		userRepo.deleteAll(userRepo.findBySchool(school));
-		
-		schoolRepo.delete(school);
-	});
-	
-}*/
-
-
-
 
 }

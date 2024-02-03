@@ -15,4 +15,6 @@ public interface ClassHourService {
 
 	ResponseEntity<ResponseStructure<List<ClassHourResponse>>> assignPeriods(List<ClassHourRequest> classHour);
 
+	ResponseEntity<ResponseStructure<String>> classHourForNextWeek(int programId);
+
 }

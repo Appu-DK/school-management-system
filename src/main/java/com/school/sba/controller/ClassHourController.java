@@ -17,20 +17,27 @@ import com.school.sba.utility.ResponseStructure;
 
 @RestController
 public class ClassHourController {
-	
+
 	@Autowired
 	private ClassHourService classHourService;
-	
+
 	@PostMapping("/academic-program/{programId}/class-hours")
 	public ResponseEntity<ResponseStructure<String>> createClassHour(@PathVariable int programId){
-		
+
 		return classHourService.createClassHour(programId);
 	}
-	
+
 	@PutMapping("/class-hours")
 	public ResponseEntity<ResponseStructure<List<ClassHourResponse>>> assigningPeriods(@RequestBody List<ClassHourRequest> classHour){
 		return classHourService.assignPeriods(classHour);
 	}
-	
+
+	@PutMapping("/academic-program/{programId}/class-hours")
+	public ResponseEntity<ResponseStructure<String>> classHourForNextWeek(@PathVariable int programId){
+		return classHourService.classHourForNextWeek(programId);
+	}
+
+
+
 
 }

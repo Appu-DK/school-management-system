@@ -1,5 +1,7 @@
 package com.school.sba.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.school.sba.entity.School;
@@ -9,5 +11,7 @@ public interface SchoolRepo extends JpaRepository<School, Integer> {
 
 	public boolean existsBySchoolId(int schoolId);
 
-	public School findByIsDeletedIsTrue();
+	public List<School> findByIsDeletedIsTrue();
+	
+	public List<School> findByIsDeleted(boolean b);
 }
